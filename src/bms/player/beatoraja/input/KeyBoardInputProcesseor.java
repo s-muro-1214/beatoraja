@@ -2,12 +2,13 @@ package bms.player.beatoraja.input;
 
 import java.util.Arrays;
 
-import bms.player.beatoraja.PlayModeConfig.KeyboardConfig;
-import bms.player.beatoraja.Resolution;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.utils.IntArray;
-import com.badlogic.gdx.Input.Keys;
+
+import bms.player.beatoraja.PlayModeConfig.KeyboardConfig;
+import bms.player.beatoraja.Resolution;
 
 /**
  * キーボード入力処理用クラス
@@ -280,6 +281,12 @@ public class KeyBoardInputProcesseor extends BMSPlayerInputDevice implements Inp
 			this.keycode = keycode;
 			this.text = text;
 		}
+	}
+
+	@Override
+	public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
+		// TODO 自動生成されたメソッド・スタブ
+		return false;
 	}
 
 }

@@ -1,9 +1,13 @@
 package bms.player.beatoraja;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.URL;
-import java.nio.file.*;
-import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
@@ -11,15 +15,10 @@ import javax.swing.JOptionPane;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Graphics;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.scene.layout.VBox;
-
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import bms.player.beatoraja.AudioConfig.DriverType;
 import bms.player.beatoraja.ir.IRConnectionManager;
@@ -28,6 +27,10 @@ import bms.player.beatoraja.song.SQLiteSongDatabaseAccessor;
 import bms.player.beatoraja.song.SongData;
 import bms.player.beatoraja.song.SongDatabaseAccessor;
 import bms.player.beatoraja.song.SongUtils;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.layout.VBox;
 
 /**
  * 起動用クラス
@@ -128,7 +131,7 @@ public class MainLoader extends Application {
 					cfg.fullscreen = true;
 					break;
 				case BORDERLESS:
-					System.setProperty("org.lwjgl.opengl.Window.undecorated", "true");
+					cfg.undecorated = true;
 					cfg.fullscreen = false;
 					break;
 				case WINDOW:
