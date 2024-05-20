@@ -1,10 +1,17 @@
 package bms.player.beatoraja;
 
-import bms.player.beatoraja.song.SongData;
-
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+
+import org.apache.commons.math3.random.MersenneTwister;
+import org.apache.commons.math3.random.RandomGenerator;
+
+import bms.player.beatoraja.song.SongData;
 
 /**
  * SQL問い合わせ結果から曲を抽選するコースのデータ
@@ -39,7 +46,7 @@ public class RandomCourseData {
 	 */
 	private SongData[] songDatas = SongData.EMPTY;
 
-	private final java.util.Random random = new java.util.Random();
+	private final RandomGenerator rng = new MersenneTwister();
 
 	public String getName() {
 		return name;
@@ -113,14 +120,14 @@ public class RandomCourseData {
 			return;
 		}
 		if (!isDistinct) {
-			songDatas[i] = lots[random.nextInt(lots.length)];
+			songDatas[i] = lots[rng.nextInt(lots.length)];
 			return;
 		}
 
 		// 曲を抽選し、以前のステージと曲が重複したら再抽選する。再抽選できなくなったら重複を許容する。
 		List<SongData> tempLots = new ArrayList(Arrays.asList(lots));
 		while (tempLots.size() > 0) {
-			int ri = random.nextInt(tempLots.size());
+			int ri = rng.nextInt(tempLots.size());
 			songDatas[i] = tempLots.get(ri);
 			boolean isDuplicate = false;
 			for (int j = 0; j < i; j++) {
@@ -137,7 +144,7 @@ public class RandomCourseData {
 				return;
 			}
 		}
-		songDatas[i] = lots[random.nextInt(lots.length)];
+		songDatas[i] = lots[rng.nextInt(lots.length)];
 		return;
 	}
 

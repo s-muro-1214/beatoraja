@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.math3.random.MersenneTwister;
+import org.apache.commons.math3.random.RandomGenerator;
+
 import com.badlogic.gdx.utils.IntArray;
 
 import bms.model.BMSModel;
@@ -33,8 +36,8 @@ public abstract class PatternModifier {
 
 	public static final int SIDE_1P = 0;
 	public static final int SIDE_2P = 1;
-	
-	private long seed = (long) (Math.random() * 65536 * 256);
+
+	private long seed = (long) (Math.random() * Long.MAX_VALUE);
 
 	public PatternModifier() {
 
@@ -151,40 +154,40 @@ public abstract class PatternModifier {
 	}
 
 	public void setSeed(long seed) {
-		if(seed >= 0) {
-			this.seed = seed;			
+		if (seed >= 0) {
+			this.seed = seed;
 		}
 	}
 
-    /**
-     * 譜面オプションに対応したPatternModifierを生成する
-     *
-     * @param id 譜面オプションID
-     * @param side 譜面オプションサイド(1P or 2P)
-     * @param mode 譜面のモード
-     * @return
-     */
-    public static PatternModifier create(int id, int side, Mode mode, PlayerConfig config) {
+	/**
+	 * 譜面オプションに対応したPatternModifierを生成する
+	 *
+	 * @param id 譜面オプションID
+	 * @param side 譜面オプションサイド(1P or 2P)
+	 * @param mode 譜面のモード
+	 * @return
+	 */
+	public static PatternModifier create(int id, int side, Mode mode, PlayerConfig config) {
 		PatternModifier pm = null;
 		Random r = Random.getRandom(id);
 		switch (r) {
-			case IDENTITY:
+		case IDENTITY:
 			pm = new DummyModifier();
 			break;
-			case MIRROR:
-			case RANDOM:
-			case R_RANDOM:
-			case RANDOM_EX:
-			case CROSS:
+		case MIRROR:
+		case RANDOM:
+		case R_RANDOM:
+		case RANDOM_EX:
+		case CROSS:
 			pm = new LaneShuffleModifier(r);
 			break;
-			case S_RANDOM:
-			case SPIRAL:
-			case H_RANDOM:
-			case S_RANDOM_EX:
+		case S_RANDOM:
+		case SPIRAL:
+		case H_RANDOM:
+		case S_RANDOM_EX:
 			pm = new NoteShuffleModifier(r, mode, config);
 			break;
-			case ALL_SCR:
+		case ALL_SCR:
 			pm = new NoteShuffleModifier(r, side, mode, config);
 			break;
 		}
@@ -221,32 +224,20 @@ public abstract class PatternModifier {
 	}
 
 	protected static int[] shuffle(int[] keys, long seed) {
-		java.util.Random rand = new java.util.Random(seed);
-		List<Integer> l = new ArrayList<Integer>(keys.length);
-		for (int key : keys) {
-			l.add(key);
+		RandomGenerator rng = new MersenneTwister(seed);
+		for (int i = keys.length - 1; i > 0; i--) {
+			int j = rng.nextInt(i + 1);
+			int temp = keys[i];
+			keys[i] = keys[j];
+			keys[j] = temp;
 		}
-		int max = 0;
-		for (int key : keys) {
-			max = Math.max(max, key);
-		}
-		int[] result = new int[max + 1];
-		for (int i = 0; i < result.length; i++) {
-			result[i] = i;
-		}
-		for (int lane = 0; lane < keys.length; lane++) {
-			int r = rand.nextInt(l.size());
-			result[keys[lane]] = l.get(r);
-			l.remove(r);
-		}
-
-		return result;
+		return keys;
 	}
 
 	protected static int[] rotate(int[] keys, long seed) {
-		java.util.Random rand = new java.util.Random(seed);
-		boolean inc = (rand.nextInt(2) == 1);
-		int start = rand.nextInt(keys.length - 1) + (inc ? 1 : 0);
+		RandomGenerator rng = new MersenneTwister(seed);
+		boolean inc = (rng.nextInt(2) == 1);
+		int start = rng.nextInt(keys.length - 1) + (inc ? 1 : 0);
 		return rotate(keys, start, inc);
 	}
 
@@ -268,13 +259,13 @@ public abstract class PatternModifier {
 
 	protected static void moveToBackground(TimeLine[] tls, TimeLine tl, int lane) {
 		Note n = tl.getNote(lane);
-		if(n == null) {
+		if (n == null) {
 			return;
 		}
-		if(n instanceof LongNote) {
+		if (n instanceof LongNote) {
 			LongNote pln = ((LongNote) tl.getNote(lane)).getPair();
-			for(TimeLine tl2 : tls) {
-				if(tl2.getNote(lane) == pln) {
+			for (TimeLine tl2 : tls) {
+				if (tl2.getNote(lane) == pln) {
 					tl2.addBackGroundNote(pln);
 					tl2.setNote(lane, null);
 					break;
@@ -282,7 +273,7 @@ public abstract class PatternModifier {
 			}
 		}
 
-		if(!(n instanceof MineNote)) {
+		if (!(n instanceof MineNote)) {
 			tl.addBackGroundNote(tl.getNote(lane));
 		}
 		tl.setNote(lane, null);
