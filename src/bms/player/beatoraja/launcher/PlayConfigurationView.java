@@ -2,41 +2,44 @@ package bms.player.beatoraja.launcher;
 
 import java.awt.Desktop;
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.nio.file.*;
-import java.util.*;
+import java.nio.file.Paths;
+import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
-import bms.player.beatoraja.external.ScoreDataImporter;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import bms.model.Mode;
-import bms.player.beatoraja.*;
+import bms.player.beatoraja.Config;
+import bms.player.beatoraja.MainLoader;
+import bms.player.beatoraja.PlayConfig;
+import bms.player.beatoraja.PlayerConfig;
+import bms.player.beatoraja.ScoreDatabaseAccessor;
+import bms.player.beatoraja.external.ScoreDataImporter;
 import bms.player.beatoraja.play.JudgeAlgorithm;
-import bms.player.beatoraja.play.TargetProperty;
-import bms.player.beatoraja.song.*;
+import bms.player.beatoraja.song.SongDatabaseAccessor;
+import bms.player.beatoraja.song.SongInformationAccessor;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.Slider;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
-import twitter4j.Twitter;
-import twitter4j.TwitterException;
-import twitter4j.TwitterFactory;
-import twitter4j.auth.AccessToken;
-import twitter4j.auth.RequestToken;
-import twitter4j.conf.ConfigurationBuilder;
 
 /**
  * Beatorajaの設定ダイアログ
@@ -259,8 +262,6 @@ public class PlayConfigurationView implements Initializable {
 	private MainLoader loader;
 
 	private boolean songUpdated = false;
-
-	private RequestToken requestToken = null;
 
 	@FXML
 	public CheckBox discord;
@@ -739,48 +740,10 @@ public class PlayConfigurationView implements Initializable {
 
 	@FXML
 	public void startTwitterAuth() {
-		ConfigurationBuilder cb = new ConfigurationBuilder();
-		cb.setOAuthConsumerKey(txtTwitterConsumerKey.getText());
-		cb.setOAuthConsumerSecret(txtTwitterConsumerSecret.getText());
-		cb.setOAuthAccessToken(null);
-		cb.setOAuthAccessTokenSecret(null);
-		TwitterFactory twitterfactory = new TwitterFactory(cb.build());
-		Twitter twitter = twitterfactory.getInstance();
-		try {
-			requestToken = twitter.getOAuthRequestToken();
-			Desktop desktop = Desktop.getDesktop();
-			URI uri = new URI(requestToken.getAuthorizationURL());
-			desktop.browse(uri);
-			player.setTwitterConsumerKey(txtTwitterConsumerKey.getText());
-			player.setTwitterConsumerSecret(txtTwitterConsumerSecret.getText());
-			player.setTwitterAccessToken("");
-			player.setTwitterAccessTokenSecret("");
-			txtTwitterPIN.setDisable(false);
-			twitterPINButton.setDisable(false);
-			txtTwitterAuthenticated.setVisible(false);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 	@FXML
 	public void startPINAuth() {
-		ConfigurationBuilder cb = new ConfigurationBuilder();
-		cb.setOAuthConsumerKey(player.getTwitterConsumerKey());
-		cb.setOAuthConsumerSecret(player.getTwitterConsumerSecret());
-		cb.setOAuthAccessToken(null);
-		cb.setOAuthAccessTokenSecret(null);
-		TwitterFactory twitterfactory = new TwitterFactory(cb.build());
-		Twitter twitter = twitterfactory.getInstance();
-		try {
-			AccessToken accessToken = twitter.getOAuthAccessToken(requestToken, txtTwitterPIN.getText());
-			player.setTwitterAccessToken(accessToken.getToken());
-			player.setTwitterAccessTokenSecret(accessToken.getTokenSecret());
-			commit();
-			update(config);
-		} catch (TwitterException e) {
-			e.printStackTrace();
-		}
 	}
 
     @FXML
